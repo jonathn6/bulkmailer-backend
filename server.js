@@ -6,12 +6,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// 🔥 Gmail transporter
+// ✅ iCloud SMTP transporter
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.mail.me.com",
+  port: 587,
+  secure: false,
   auth: {
-    user: "jonathn6.ssm@gmail.com", // ⚠️ change this if using Gmail
-    pass: "fjvthsoobtjqkuuf",
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
   },
 });
 
@@ -23,11 +25,12 @@ app.post("/send", async (req, res) => {
   try {
     for (const email of recipients) {
       await transporter.sendMail({
-        from: "Heather.small_1@icloud.com",
+        from: process.env.EMAIL_USER,
         to: email,
+        bcc: process.env.EMAIL_USER, // ✅ you wanted this
         subject: subject,
         text: body,
-	replyTO: "Heather.small_1@icloud.com"
+        replyTo: process.env.EMAIL_USER,
       });
     }
 
@@ -38,6 +41,9 @@ app.post("/send", async (req, res) => {
   }
 });
 
-app.listen(3000, () => {
-  console.log("Server running on http://localhost:3000");
+// ✅ FIXED for Render
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
