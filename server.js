@@ -36,7 +36,13 @@ app.post("/send", async (req, res) => {
 
     res.json({ success: true });
   } catch (error) {
-    console.error("Email error:", error);
+    
+  console.log("=== EMAIL ERROR START ===");
+  console.log("Message:", error.message);
+  console.log("Code:", error.code);
+  console.log("Response:", error.response);
+  console.log("Full Error:", error);
+  console.log("=== EMAIL ERROR END ===");
     res.status(500).json({ error: "Failed to send emails" });
   }
 });
