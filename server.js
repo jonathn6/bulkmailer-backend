@@ -17,6 +17,14 @@ const transporter = nodemailer.createTransport({
   },
 }); 
 
+transporter.verify(function (error, success) {
+  if (error) {
+    console.log("SMTP VERIFY ERROR:", error);
+  } else {
+    console.log("SMTP READY");
+  }
+});
+
 app.post("/send", async (req, res) => {
   console.log("Incoming request:", req.body);
   console.log("EMAIL_USER:", process.env.EMAIL_USER);
@@ -27,12 +35,12 @@ app.post("/send", async (req, res) => {
   try {
     for (const email of recipients) {
       await transporter.sendMail({
-        from: process.env.EMAIL_USER,
+        from: "Heather.Small_1@icloud.com",
         to: email,
         bcc: process.env.EMAIL_USER, // ✅ you wanted this
         subject: subject,
         text: body,
-        replyTo: process.env.EMAIL_USER,
+        replyTo: "Heather.Small_1@icloud.com",
       });
     }
 
