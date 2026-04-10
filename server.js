@@ -5,6 +5,7 @@ import nodemailer from "nodemailer";
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(express.json({ limit: "10mb" }));
 
 // ✅ iCloud SMTP transporter
 const transporter = nodemailer.createTransport({
@@ -27,37 +28,40 @@ transporter.verify(function (error, success) {
 
 app.post("/send", async (req, res) => {
   console.log("Incoming request:", req.body);
-  console.log("EMAIL_USER:", process.env.EMAIL_USER);
-  console.log("EMAIL_PASS exists:", !!process.env.EMAIL_PASS);
 
-  const { recipients, subject, body } = req.body;
+  const { recipients, subject, body, fileName, fileData } = req.body;
 
   try {
     for (const email of recipients) {
       await transporter.sendMail({
         from: "Heather.Small_1@icloud.com",
         to: email,
-        bcc: process.env.EMAIL_USER, // ✅ you wanted this
+        bcc: "Heather.Small_1@icloud.com",
         subject: subject,
         text: body,
         replyTo: "Heather.Small_1@icloud.com",
+
+        // 👇 ADD THIS BLOCK
+        attachments: fileData
+          ? [
+              {
+                filename: fileName || "attachment.pdf",
+                content: Buffer.from(fileData, "base64"),
+              },
+            ]
+          : [],
       });
     }
 
     res.json({ success: true });
   } catch (error) {
-  res.status(500).json({
-    message: error.message,
-    code: error.code,
-    response: error.response,
-    stack: error.stack, // optional but helpful for debugging
-  });
-}
-});
-
-app.post("/test", (req, res) => {
-  console.log("BODY:", req.body);
-  res.json({ received: req.body });
+    res.status(500).json({
+      message: error.message,
+      code: error.code,
+      response: error.response,
+      stack: error.stack,
+    });
+  }
 });
 
 // ✅ FIXED for Render
