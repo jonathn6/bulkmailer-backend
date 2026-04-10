@@ -47,6 +47,11 @@ app.post("/send", async (req, res) => {
   }
 });
 
+app.post("/test", (req, res) => {
+  console.log("BODY:", req.body);
+  res.json({ received: req.body });
+});
+
 // ✅ FIXED for Render
 const PORT = process.env.PORT || 3000;
 
